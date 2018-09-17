@@ -119,5 +119,4 @@ class Piece():
         Returns:
             (str): The type of piece followed by its position and colors.
         """
-        return 'Type: {0}, {1}, {2}'.format(self._type, self._position,
-                                            self._colors)
+        return f'Type: {self._type}, {self._position}, {self._colors}'
