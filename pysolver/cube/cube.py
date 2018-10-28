@@ -25,6 +25,7 @@ from .constants import (X_AXIS, Y_AXIS, Z_AXIS, UP, DOWN, RIGHT, LEFT, FRONT,
                         BACK, ROT_YZ, ROT_YZ_PRIME, ROT_XZ, ROT_XZ_PRIME,
                         ROT_XY, ROT_XY_PRIME)
 from .piece import Piece
+from ..util.algorithm import Algorithm
 
 
 class InvalidCubeString(Exception):
@@ -32,7 +33,6 @@ class InvalidCubeString(Exception):
     represent a valid Rubik's cube.
     """
     pass
-
 
 class Cube():
     """Rubik's cube object accurately represents the Rubik's cube. All of the
@@ -120,6 +120,14 @@ class Cube():
         # check too see if the cube string produced an accurate Rubik's cube.
         if not self._valid_cube():
             raise InvalidCubeString
+
+    def do_algorithm(self, algorithm):
+        """Perform all of the steps of an algorithm.
+
+        Arguments:
+            algorithm (Algorithm): The algorithm to perform.
+        """
+        assert isinstance(algorithm, Algorithm)
 
     def rotate_l(self, prime=False):
         """Rotate the left face of the cube 90 degrees.
