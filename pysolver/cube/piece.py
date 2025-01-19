@@ -97,20 +97,22 @@ class Piece():
         """
         new_pos = np.matmul(rotation_matrix, self._position)
         rotated = new_pos - self._position
+        self._position = new_pos
+
+        n = np.count_nonzero(rotated)
+        if not n:
+            return
 
         # update the colors to match the rotation where
         # the two non zero values should be swapped
-        if np.count_nonzero(rotated):
-            if np.count_nonzero(rotated) == 1:
-                rotated += np.matmul(rotation_matrix, rotated)
 
-            # get the indices of the colors that need swapping
-            index_a, index_b = [i for i, v in enumerate(rotated) if v != 0]
+        if n == 1:
+            rotated += np.matmul(rotation_matrix, rotated)
 
-            self._colors[index_a], self._colors[index_b] = \
-                self._colors[index_b], self._colors[index_a]
+        # get the indices of the colors that need swapping
+        index_a, index_b = [i for i, v in enumerate(rotated) if v != 0]
 
-        self._position = new_pos
+        self._colors[index_a], self._colors[index_b] = self._colors[index_b], self._colors[index_a]
 
     def __repr__(self):
         """Get a detailed representation of the cube piece.

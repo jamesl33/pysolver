@@ -24,7 +24,6 @@ from .constants import (X_AXIS, Y_AXIS, Z_AXIS, UP, DOWN, RIGHT, LEFT, FRONT,
                         BACK, ROT_YZ, ROT_YZ_PRIME, ROT_XZ, ROT_XZ_PRIME,
                         ROT_XY, ROT_XY_PRIME)
 from .piece import Piece
-from ..util.algorithm import Algorithm
 
 
 class InvalidCubeString(Exception):
@@ -109,15 +108,14 @@ class Cube():
         self._corners.add(Piece(UP + LEFT + BACK, [cs[11], cs[12], cs[6]]))
         self._corners.add(Piece(UP + RIGHT + BACK, [cs[15], cs[14], cs[8]]))
         self._corners.add(Piece(DOWN + LEFT + FRONT, [cs[33], cs[44], cs[51]]))
-        self._corners.add(
-            Piece(DOWN + RIGHT + FRONT, [cs[41], cs[42], cs[53]]))
+        self._corners.add(Piece(DOWN + RIGHT + FRONT, [cs[41], cs[42], cs[53]]))
         self._corners.add(Piece(DOWN + LEFT + BACK, [cs[9], cs[20], cs[0]]))
         self._corners.add(Piece(DOWN + RIGHT + BACK, [cs[17], cs[18], cs[2]]))
 
         self._pieces = self._faces | self._edges | self._corners
 
         # check too see if the cube string produced an accurate Rubik's cube.
-        if not self._valid_cube():
+        if not self._valid():
             raise InvalidCubeString
 
     def do_algorithm(self, algorithm):
@@ -135,9 +133,9 @@ class Cube():
             prime (bool): True if rotating the opposite way. e.g. l'
         """
         if prime:
-            self._rotate_face(LEFT, ROT_YZ_PRIME)
-        else:
             self._rotate_face(LEFT, ROT_YZ)
+        else:
+            self._rotate_face(LEFT, ROT_YZ_PRIME)
 
     def rotate_r(self, prime=False):
         """Rotate the right face of the cube 90 degrees.
@@ -168,9 +166,9 @@ class Cube():
             prime (bool): True if rotating the opposite way. e.g. d'
         """
         if prime:
-            self._rotate_face(DOWN, ROT_XZ_PRIME)
-        else:
             self._rotate_face(DOWN, ROT_XZ)
+        else:
+            self._rotate_face(DOWN, ROT_XZ_PRIME)
 
     def rotate_f(self, prime=False):
         """Rotate the front face of the cube 90 degrees.
@@ -190,9 +188,9 @@ class Cube():
             prime (bool): True if rotating the opposite way. e.g. b'
         """
         if prime:
-            self._rotate_face(BACK, ROT_XY_PRIME)
-        else:
             self._rotate_face(BACK, ROT_XY)
+        else:
+            self._rotate_face(BACK, ROT_XY_PRIME)
 
     def rotate_m(self, prime=False):
         """Rotate the m slice 90 degrees.
@@ -201,9 +199,9 @@ class Cube():
             prime (bool): True if rotating the opposite way. e.g. m'
         """
         if prime:
-            self._rotate_slice(Y_AXIS + Z_AXIS, ROT_YZ_PRIME)
-        else:
             self._rotate_slice(Y_AXIS + Z_AXIS, ROT_YZ)
+        else:
+            self._rotate_slice(Y_AXIS + Z_AXIS, ROT_YZ_PRIME)
 
     def rotate_e(self, prime=False):
         """Rotate the e slice 90 degrees.
@@ -212,9 +210,9 @@ class Cube():
             prime (bool): True if rotating the opposite way. e.g. e'
         """
         if prime:
-            self._rotate_slice(X_AXIS + Z_AXIS, ROT_XZ_PRIME)
-        else:
             self._rotate_slice(X_AXIS + Z_AXIS, ROT_XZ)
+        else:
+            self._rotate_slice(X_AXIS + Z_AXIS, ROT_XZ_PRIME)
 
     def rotate_s(self, prime=False):
         """Rotate the s slice 90 degrees.
@@ -226,39 +224,6 @@ class Cube():
             self._rotate_slice(X_AXIS + Y_AXIS, ROT_XY_PRIME)
         else:
             self._rotate_slice(X_AXIS + Y_AXIS, ROT_XY)
-
-    def rotate_x(self, prime=False):
-        """Rotate the whole cube on the x axis.
-
-        Arguments:
-            prime (bool): True if rotating the opposite way. e.g. x'
-        """
-        if prime:
-            self._rotate_cube(ROT_YZ_PRIME)
-        else:
-            self._rotate_cube(ROT_YZ)
-
-    def rotate_y(self, prime=False):
-        """Rotate the whole cube on the y axis.
-
-        Arguments:
-            prime (bool): True if rotating the opposite way. e.g. y'
-        """
-        if prime:
-            self._rotate_cube(ROT_XZ_PRIME)
-        else:
-            self._rotate_cube(ROT_XZ)
-
-    def rotate_z(self, prime=False):
-        """Rotate the whole cube on the z axis.
-
-        Arguments:
-            prime (bool): True if rotating the opposite way. e.g. z'
-        """
-        if prime:
-            self._rotate_cube(ROT_XY_PRIME)
-        else:
-            self._rotate_cube(ROT_XY)
 
     def _rotate_face(self, face, matrix):
         """Rotate a specific face using a rotation matrix.
@@ -282,16 +247,6 @@ class Cube():
                 piece.
         """
         for piece in self._slice(plane):
-            piece.rotate(matrix)
-
-    def _rotate_cube(self, matrix):
-        """Rotate the whole cube using a rotation matrix.
-
-        Arguments:
-            matrix (np.ndarray): The rotation which will be applied to each
-                piece.
-        """
-        for piece in self._pieces:
             piece.rotate(matrix)
 
     def _face(self, face):
@@ -319,14 +274,18 @@ class Cube():
         slice_pieces = set()
 
         for index, value in enumerate(plane):
-            if value == 0:
-                for piece in self._pieces:
-                    if piece.position[index] == 0:
-                        slice_pieces.add(piece)
+            if value != 0:
+                continue
+
+            for piece in self._pieces:
+                if piece.position[index] != 0:
+                    continue
+
+                slice_pieces.add(piece)
 
         return slice_pieces
 
-    def _valid_cube(self):
+    def _valid(self):
         """Advanced verification to make sure that the current cube object is
         in fact a valid Rubik's cube.
 
@@ -406,8 +365,4 @@ class Cube():
         for element in cube_string:
             colors[element] += 1
 
-        for _, count in colors.items():
-            if count != 9:
-                valid = False
-
-        return valid
+        return all(c == 9 for (_, c) in colors.items())

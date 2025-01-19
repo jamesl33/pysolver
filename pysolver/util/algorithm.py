@@ -62,6 +62,3 @@ class Algorithm():
             (str): A space seperated list of Rubik's cube moves.
         """
         return ' '.join(self._steps)
-
-
-SLEDGE = Algorithm("R U R' U'")

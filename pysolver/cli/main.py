@@ -26,8 +26,7 @@ from ..cube.cube import Cube, InvalidCubeString
 def run_pysolver():
     """Run the command line interface for pysolver."""
     parser = argparse.ArgumentParser(
-        description="Python Rubik's cube solver which makes use of the CFOP \
-            solving strategy.",
+        description="Python Rubik's cube solver which makes use of the CFOP solving strategy.",
         prog='pysolver'
     )
 
